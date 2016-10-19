@@ -1,7 +1,7 @@
 import hashlib
 import logging
 
-from db import DBHandler
+from rr_lib.db import DBHandler
 
 log = logging.getLogger("users_store")
 

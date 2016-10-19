@@ -1,7 +1,6 @@
 from uuid import uuid4
 
-from cm import ConfigManager
-from users.store import UsersStore
+from rr_lib.users.store import UsersStore
 
 
 class User(object):

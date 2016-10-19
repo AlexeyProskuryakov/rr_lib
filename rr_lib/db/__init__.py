@@ -2,7 +2,7 @@ import logging
 
 from pymongo import MongoClient
 
-from cm import ConfigManager
+from rr_lib.cm import ConfigManager
 
 log = logging.getLogger("DB")
 
