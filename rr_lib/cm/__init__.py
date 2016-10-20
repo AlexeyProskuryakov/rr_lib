@@ -48,6 +48,5 @@ class ConfigManager(object):
             "\n".join(["%s: %s" % (k, v) for k, v in self.config_data.iteritems()]))
                  )
 
-    def get(self, name, type_=str):
-        if name in self.config_data:
-            return type_(self.config_data.get(name))
+    def get(self, name):
+        self.config_data.get(name)
