@@ -24,7 +24,7 @@ def login():
         if user:
             try:
                 login_user(user, remember=remember_me)
-                return redirect(url_for("main"))
+                return redirect("/")
             except Exception as e:
                 log.exception(e)
 
@@ -35,4 +35,4 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for('users_api.login'))
