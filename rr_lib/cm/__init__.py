@@ -49,4 +49,4 @@ class ConfigManager(object):
                  )
 
     def get(self, name):
-        self.config_data.get(name)
+        return self.config_data.get(name)
