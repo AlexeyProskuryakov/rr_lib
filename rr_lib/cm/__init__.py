@@ -3,12 +3,12 @@ import logging
 import os
 import sys
 
-
 log = logging.getLogger("wsgi")
 
 
 def is_test_mode():
     return os.environ.get("RR_TEST", "false").strip().lower() in ("true", "1", "yes")
+
 
 def module_path():
     if hasattr(sys, "frozen"):
@@ -16,7 +16,6 @@ def module_path():
             sys.executable
         )
     return os.path.dirname(__file__)
-
 
 
 class Singleton(type):

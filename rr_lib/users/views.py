@@ -2,7 +2,7 @@ import logging
 
 from flask import request, Blueprint, render_template, redirect, url_for
 from flask_login import login_user, login_required, logout_user
-from users.manage import UsersHandler, User
+from rr_lib.users.manage import UsersHandler, User
 
 from rr_lib.cm import ConfigManager
 
