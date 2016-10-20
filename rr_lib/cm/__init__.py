@@ -43,10 +43,11 @@ class ConfigManager(object):
             sys.exit(-1)
 
         self.config_data = json.load(f)
-        log.info("LOAD CONFIG DATA FROM %s:\n%s" % (
-            config_file,
-            "\n".join(["%s: %s" % (k, v) for k, v in self.config_data.iteritems()]))
-                 )
+        log.info(
+            "LOAD CONFIG DATA FROM %s:\n%s" % (
+                config_file,
+                "\n".join(["%s: %s" % (k, v) for k, v in self.config_data.iteritems()]))
+        )
 
     def get(self, name):
         return self.config_data.get(name)
