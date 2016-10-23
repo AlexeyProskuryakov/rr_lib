@@ -28,13 +28,13 @@ class Singleton(type):
 
 
 class ConfigManager(object):
-    __metaclass__ = Singleton
 
-    def __init__(self):
+    def __init__(self, config_f=None):
         if is_test_mode():
             config_file = "%s/config_test.json" % module_path()
         else:
             config_file = os.path.join(os.environ.get("OPENSHIFT_DATA_DIR", ""), os.environ.get("config_file", ""))
+        config_file = config_f or config_file
         try:
             f = open(config_file, )
         except Exception as e:
@@ -43,6 +43,8 @@ class ConfigManager(object):
             sys.exit(-1)
 
         self.config_data = json.load(f)
+        self.config_file = config_file
+
         log.info(
             "LOAD CONFIG DATA FROM %s:\n%s" % (
                 config_file,
@@ -50,4 +52,7 @@ class ConfigManager(object):
         )
 
     def get(self, name):
-        return self.config_data.get(name)
+        result = self.config_data.get(name)
+        if not result:
+            log.info("Not %s in %s :("%(name, self.config_file) )
+        return result
