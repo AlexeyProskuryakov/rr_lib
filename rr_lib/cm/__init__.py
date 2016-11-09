@@ -22,14 +22,17 @@ class Singleton(type):
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+        key = (cls, kwargs.get("group"))
+        saved = cls._instances.get(key)
+        if not saved:
+            cls._instances[key] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[key]
 
 
 class ConfigManager(object):
+    __metaclass__ = Singleton
 
-    def __init__(self, config_f=None):
+    def __init__(self, config_f=None, group=0):
         if is_test_mode():
             config_file = "%s/config_test.json" % module_path()
         else:
@@ -56,3 +59,8 @@ class ConfigManager(object):
         if not result:
             log.info("Not %s in %s :("%(name, self.config_file) )
         return result
+
+
+if __name__ == '__main__':
+    assert ConfigManager(group=1) != ConfigManager
+    assert ConfigManager(group=1) == ConfigManager(group=1)
