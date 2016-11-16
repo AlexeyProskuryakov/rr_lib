@@ -62,5 +62,5 @@ class ConfigManager(object):
 
 
 if __name__ == '__main__':
-    assert ConfigManager(group=1) != ConfigManager
+    assert ConfigManager(group=1) != ConfigManager()
     assert ConfigManager(group=1) == ConfigManager(group=1)
