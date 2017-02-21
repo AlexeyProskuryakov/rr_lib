@@ -49,8 +49,9 @@ class ConfigManager(object):
         self.config_file = config_file
 
         log.info(
-            "LOAD CONFIG DATA FROM %s:\n%s" % (
+            "LOAD CONFIG DATA FROM %s FOR GROUP %s:\n%s" % (
                 config_file,
+                group,
                 "\n".join(["%s: %s" % (k, v) for k, v in self.config_data.iteritems()]))
         )
 
