@@ -10,7 +10,7 @@ class UsersStore(DBHandler):
         super(UsersStore, self).__init__(name=name)
         db = self.db
         if "users" not in self.collection_names:
-            self.users = db.create_collection()
+            self.users = db.create_collection("users")
             self.users.create_index([("name", 1)], unique=True)
             self.users.create_index([("user_id", 1)], unique=True)
         else:
