@@ -35,3 +35,6 @@ class UsersStore(DBHandler):
             crupt = m.hexdigest()
             if crupt == found.get("pwd"):
                 return found.get("user_id")
+
+    def update_user(self, uid, data):
+        self.users.update_one({"user_id":uid}, {"$set":data}, upsert=True)
