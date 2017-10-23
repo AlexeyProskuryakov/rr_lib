@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 
-log = logging.getLogger("wsgi")
+log = logging.getLogger("cm")
 
 
 def is_test_mode():
@@ -22,7 +22,7 @@ class Singleton(type):
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
-        key = (cls, hash("%s%s"%(args,kwargs)))
+        key = (cls, hash("%s%s" % (args, kwargs)))
         saved = cls._instances.get(key)
         if not saved:
             cls._instances[key] = super(Singleton, cls).__call__(*args, **kwargs)
@@ -37,6 +37,7 @@ class ConfigManager(object):
             config_file = "%s/config_test.json" % module_path()
         else:
             config_file = os.path.join(os.environ.get("OPENSHIFT_DATA_DIR", ""), os.environ.get("config_file", ""))
+
         config_file = config_f or config_file or 'config_test.json'
         try:
             f = open(config_file, )
@@ -59,7 +60,7 @@ class ConfigManager(object):
     def get(self, name):
         result = self.config_data.get(name)
         if not result:
-            log.info("Not %s in %s :("%(name, self.config_file) )
+            log.info("Not %s in %s :(" % (name, self.config_file))
         return result
 
 
