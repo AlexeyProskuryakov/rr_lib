@@ -1,6 +1,7 @@
 import logging
 
 from flask import request, Blueprint, render_template, redirect, url_for
+from flask import session
 from flask_login import login_user, login_required, logout_user
 from rr_lib.users.manage import UsersHandler, User
 
@@ -13,6 +14,7 @@ usersHandler.add_user(User(**cm.get("default_user")))
 users_app = Blueprint('users_api', __name__, template_folder="templates")
 
 log = logging.getLogger("users_views")
+
 
 @users_app.route("/login", methods=["GET", "POST"])
 def login():
@@ -36,3 +38,13 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('users_api.login'))
+
+
+@users_app.route('/callback')
+def callback():
+    user_id = session.get('user_id')
+    code = request.args.get('code')
+    log.info("Callback for user: %s\nCode: %s" % (user_id, code))
+
+    usersHandler.db.update_user(user_id, {'callback_code': code})
+    return redirect("/")
