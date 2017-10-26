@@ -5,17 +5,12 @@ import sys
 
 log = logging.getLogger("cm")
 
+EV_TEST = 'RR_TEST'
+EV_CONFIG_FILE_PATH = 'RR_CONFIG_PATH'
+
 
 def is_test_mode():
-    return os.environ.get("RR_TEST", "false").strip().lower() in ("true", "1", "yes")
-
-
-def module_path():
-    if hasattr(sys, "frozen"):
-        return os.path.dirname(
-            sys.executable
-        )
-    return os.path.dirname(__file__)
+    return os.environ.get(EV_TEST, "false").strip().lower() in ("true", "1", "yes")
 
 
 class Singleton(type):
@@ -28,17 +23,28 @@ class Singleton(type):
             cls._instances[key] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[key]
 
+class ConfigException(Exception):
+    pass
 
 class ConfigManager(object):
     __metaclass__ = Singleton
 
     def __init__(self, config_f=None, group=0):
-        if is_test_mode():
-            config_file = "%s/config_test.json" % module_path()
-        else:
-            config_file = os.path.join(os.environ.get("OPENSHIFT_DATA_DIR", ""), os.environ.get("config_file", ""))
+        config_path = os.environ.get(EV_CONFIG_FILE_PATH)
+        if not config_path:
+            raise ConfigException('%s is undefined :('%EV_CONFIG_FILE_PATH)
 
-        config_file = config_f or config_file or 'config_test.json'
+
+
+        if is_test_mode():
+            config_file = os.path.join(config_path, 'config_test.json')
+        else:
+            if config_path.endswith('.json'):
+                config_file = config_path
+            else:
+                config_file = os.path.join(config_path, 'config.json')
+
+        config_file = config_f or config_file
         try:
             f = open(config_file, )
             raw_data = '\n'.join(f.readlines())
