@@ -34,8 +34,6 @@ class ConfigManager(object):
         if not config_path:
             raise ConfigException('%s is undefined :('%EV_CONFIG_FILE_PATH)
 
-
-
         if is_test_mode():
             config_file = os.path.join(config_path, 'config_test.json')
         else:
