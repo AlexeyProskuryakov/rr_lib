@@ -85,6 +85,14 @@ class ProcessDirector(object):
                 return result
             return alloc
 
+    @windows_skip(False)
+    def stop_aspect(self, aspect):
+        data = self.redis.get(PREFIX_ALLOC(aspect))
+        if data:
+            self.redis.delete(PREFIX_ALLOC(aspect))
+            return True
+        return False
+
     @windows_skip(True)
     def is_aspect_work(self, aspect, timing_check=True):
         tick_time = self.redis.get(PREFIX_ALLOC(aspect))
