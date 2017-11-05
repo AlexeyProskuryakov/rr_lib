@@ -62,6 +62,9 @@ def windows_skip(default_value):
 
 class ProcessDirector(object):
     def __init__(self, name="?", clear=False, max_connections=2):
+        if os.name == 'nt':
+            return
+
         cm = ConfigManager()
         self.redis = redis.StrictRedis(host=cm.get('pd').get('host'),
                                        port=int(cm.get('pd').get('port')),

@@ -22,10 +22,7 @@ class TestProcess(Process):
         print "stopped"
 
 
-if __name__ == '__main__':
-    import logging
-    from logging import StreamHandler
-    logging.getLogger().addHandler(StreamHandler())
+def test_posix():
     sp = TestProcess("test")
 
     pd = ProcessDirector("t")
@@ -39,3 +36,22 @@ if __name__ == '__main__':
     print "after join", pd.is_aspect_work("test")
     time.sleep(4)
     print "after wait", pd.is_aspect_work("test")
+
+
+def test_nt():
+    pd = ProcessDirector('t')
+    assert pd.is_aspect_work('t') == True
+    assert pd.start_aspect() == None
+
+
+if __name__ == '__main__':
+    import logging
+    from logging import StreamHandler
+
+    import os
+    logging.getLogger().addHandler(StreamHandler())
+
+    if os.name == 'nt':
+        test_nt()
+    else:
+        test_posix()
