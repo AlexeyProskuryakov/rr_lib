@@ -1,0 +1,4 @@
+{
+  "mongo_uri":"localhost:27017",
+  "db_name":"wake_up"
+}
