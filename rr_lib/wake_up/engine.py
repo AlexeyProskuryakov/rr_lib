@@ -16,11 +16,11 @@ class WakeUp(Process):
     def __init__(self):
         super(WakeUp, self).__init__()
         self.daemon = True
-        self.store = WakeUpStorage("wake_up")
+        self.store = WakeUpStorage("wake_up_")
 
     def check_url(self, url):
         salt = ''.join(random.choice(string.lowercase) for _ in range(20))
-        addr = "%s/wake_up/%s" % (url, salt)
+        addr = "%s/wake_up_/%s" % (url, salt)
         result = requests.post(addr)
         return result.status_code
 

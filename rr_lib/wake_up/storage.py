@@ -20,12 +20,12 @@ class WakeUpStorage():
         self.db = self.client[db_name]
         self.collection_names = self.db.collection_names(include_system_collections=False)
 
-        if "wake_up" not in self.collection_names:
-            self.urls = self.db.create_collection("wake_up")
+        if "wake_up_" not in self.collection_names:
+            self.urls = self.db.create_collection("wake_up_")
             self.urls.create_index("url_hash", unique=True)
             self.urls.create_index("state")
         else:
-            self.urls = self.db.get_collection("wake_up")
+            self.urls = self.db.get_collection("wake_up_")
 
         log.info("Init wake up storage [%s]"%name)
 

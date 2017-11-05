@@ -47,4 +47,4 @@ def wake_up_manage():
 
     urls = wu.store.get_urls()
 
-    return render_template("wake_up.html", **{"urls": urls})
+    return render_template("wake_up_.html", **{"urls": urls})
