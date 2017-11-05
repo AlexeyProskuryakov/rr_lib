@@ -29,7 +29,7 @@ class UsersHandler(object):
     def __init__(self):
         self.users = {}
         self.auth_users = {}
-        self.db = UsersStore("USER HANDLER")
+        self.db = UsersStore()
 
 
     def get_guest(self):

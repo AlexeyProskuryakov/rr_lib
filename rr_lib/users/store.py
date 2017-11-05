@@ -6,8 +6,8 @@ from rr_lib.db import DBHandler
 log = logging.getLogger("users_store")
 
 class UsersStore(DBHandler):
-    def __init__(self, name="?"):
-        super(UsersStore, self).__init__(name=name)
+    def __init__(self):
+        super(UsersStore, self).__init__(name='main')
         db = self.db
         if "users" not in self.collection_names:
             self.users = db.create_collection("users")
