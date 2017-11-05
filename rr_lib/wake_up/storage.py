@@ -13,8 +13,8 @@ class WakeUpStorage():
     def __init__(self, name="?"):
         cfg = ConfigManager(group=cfg_group)
 
-        mongo_uri = cfg.get("mongo_uri")
-        db_name = cfg.get("db_name")
+        mongo_uri = cfg.get("mongo_uri", )
+        db_name = cfg.get("db_name", )
 
         self.client = MongoClient(host=mongo_uri, maxPoolSize=10, connect=False)
         self.db = self.client[db_name]
@@ -33,7 +33,7 @@ class WakeUpStorage():
         return self.urls.find({})
 
     def get_urls(self):
-        return map(lambda x: x.get("url"), self.urls.find({}, projection={'url': True}))
+        return map(lambda x: x.get("url", ), self.urls.find({}, projection={'url': True}))
 
     def add_url(self, url):
         hash_url = hash(url)
@@ -51,6 +51,6 @@ class WakeUpStorage():
         self.urls.update_one({"url": url}, {"$set": {"state": state}})
 
     def get_urls_with_state(self, state):
-        return map(lambda x: x.get("url"), self.urls.find({"state": state}, projection={'url': True}))
+        return map(lambda x: x.get("url", ), self.urls.find({"state": state}, projection={'url': True}))
 
 

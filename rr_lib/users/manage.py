@@ -43,8 +43,8 @@ class UsersHandler(object):
         if not found:
             found = self.db.get_user(user_id)
             if found:
-                user = User(found.get('name'), found.get("pwd"))
-                user.id = found.get("user_id")
+                user = User(found.get('name', ), found.get("pwd", ))
+                user.id = found.get("user_id", )
                 self.users[user.id] = user
                 found = user
         return found

@@ -29,8 +29,8 @@ class ConfigException(Exception):
 class ConfigManager(object):
     __metaclass__ = Singleton
 
-    def __init__(self, config_f=None, group=0):
-        config_path = os.environ.get(EV_CONFIG_FILE_PATH)
+    def __init__(self, config_f=None, group=0, **kwargs):
+        config_path = os.environ.get(EV_CONFIG_FILE_PATH, )
         if not config_path:
             raise ConfigException('%s is undefined :('%EV_CONFIG_FILE_PATH)
 
@@ -62,15 +62,17 @@ class ConfigManager(object):
         )
 
     def get(self, name):
-        result = self.config_data.get(name)
+        result = self.config_data.get(name, )
         if not result:
             log.info("Not %s in %s :(" % (name, self.config_file))
         return result
 
 
 if __name__ == '__main__':
+    cm = ConfigManager()
+    print cm.get('main')
     assert ConfigManager(group=1) != ConfigManager()
     assert ConfigManager(group=1) == ConfigManager(group=1)
 
     cm = ConfigManager(config_f='/home/alesha/Dropbox/rr/config_generators.json', group=2)
-    print cm.get('sniffer')
+    print cm.get('sniffer', )

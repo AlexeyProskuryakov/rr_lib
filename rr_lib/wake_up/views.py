@@ -28,14 +28,14 @@ def wake_up(salt):
 @wake_up_app.route("/check")
 def wake_up_check():
     wu.check()
-    urls = map(lambda x: {"url": x.get("url"), "state": x.get("state")}, wu.store.get_urls_info())
+    urls = map(lambda x: {"url": x.get("url", ), "state": x.get("state", )}, wu.store.get_urls_info())
     return jsonify({"ok": True, "urls": urls})
 
 
 @wake_up_app.route("/", methods=["GET", "POST"])
 def wake_up_manage():
     if request.method == "POST":
-        urls = request.form.get("urls")
+        urls = request.form.get("urls", )
         urls = filter(lambda x: x, map(lambda x: x.strip(), urls.split("\n")))
 
         stored_urls = wu.store.get_urls()

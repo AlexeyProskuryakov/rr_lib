@@ -10,10 +10,10 @@ log = logging.getLogger("DB")
 class DBHandler(object):
     def __init__(self, name="main", uri=None, db_name=None):
         cm = ConfigManager()
-        if name not in cm:
-            raise ValueError("No %s config for connect :(" % name)
-        _uri = uri or cm.get(name).get('mongo').get("uri")
-        _db_name = db_name or cm.get(name).get('mongo').get("db_name")
+        if not cm.get(name):
+            raise ValueError("No %s config for connect to mongo:(" % name)
+        _uri = uri or cm.get(name, ).get('mongo', ).get("uri", )
+        _db_name = db_name or cm.get(name, ).get('mongo', ).get("db_name", )
 
         self.client = MongoClient(host=_uri, maxPoolSize=10, connect=False)
         self.db = self.client[_db_name]

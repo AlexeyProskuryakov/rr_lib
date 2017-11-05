@@ -33,8 +33,8 @@ class UsersStore(DBHandler):
             m = hashlib.md5()
             m.update(pwd)
             crupt = m.hexdigest()
-            if crupt == found.get("pwd"):
-                return found.get("user_id")
+            if crupt == found.get("pwd", ):
+                return found.get("user_id", )
 
     def update_user(self, uid, data):
         self.users.update_one({"user_id":uid}, {"$set":data}, upsert=True)
