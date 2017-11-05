@@ -1,4 +1,5 @@
 # coding:utf-8
+import os
 import logging
 import time
 from threading import Thread, Event
@@ -16,6 +17,7 @@ DEFAULT_TICK_TIME = 10
 __all__ = [
     'ProcessDirector'
 ]
+
 
 class _ProcessTracker(object):
     def __init__(self, aspect, pd, tick_time):
@@ -45,10 +47,21 @@ def _send_heart_beat(aspect, pd, tick_time, stop_event):
     log.info("stop tracking [%s]" % aspect)
 
 
+def windows_skip(default_value):
+    def dec(f):
+        def wrapper(*args, **kwargs):
+            if os.name == 'nt':
+                return default_value
+            else:
+                return f(*args, **kwargs)
+
+        return wrapper
+
+    return dec
+
 
 class ProcessDirector(object):
     def __init__(self, name="?", clear=False, max_connections=2):
-
         cm = ConfigManager()
         self.redis = redis.StrictRedis(host=cm.get('pd').get('host'),
                                        port=int(cm.get('pd').get('port')),
@@ -60,15 +73,16 @@ class ProcessDirector(object):
             self.redis.flushdb()
         log.info("Process director [%s] inited." % name)
 
+    @windows_skip(None)
     def start_aspect(self, aspect, tick_time=DEFAULT_TICK_TIME, with_tracking=True):
         alloc = self.redis.set(PREFIX_ALLOC(aspect), tick_time, ex=tick_time, nx=True)
-
         if alloc:
             if with_tracking:
                 result = _ProcessTracker(aspect, self, tick_time)
                 return result
             return alloc
 
+    @windows_skip(True)
     def is_aspect_work(self, aspect, timing_check=True):
         tick_time = self.redis.get(PREFIX_ALLOC(aspect))
         if tick_time and timing_check:
