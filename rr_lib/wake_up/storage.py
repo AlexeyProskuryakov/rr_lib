@@ -4,13 +4,13 @@ from pymongo import MongoClient
 
 from rr_lib.cm import ConfigManager
 
-from wake_up import cfg_group
+from rr_lib.wake_up import cfg_group
 
 log = logging.getLogger("wake_up_storage")
 
 
 class WakeUpStorage():
-    def __init__(self, name="?"):
+    def __init__(self):
         cfg = ConfigManager(group=cfg_group)
 
         mongo_uri = cfg.get("mongo_uri", )
@@ -27,7 +27,7 @@ class WakeUpStorage():
         else:
             self.urls = self.db.get_collection("wake_up_")
 
-        log.info("Init wake up storage [%s]"%name)
+        log.info("Init wake up storage")
 
     def get_urls_info(self):
         return self.urls.find({})
@@ -43,8 +43,8 @@ class WakeUpStorage():
             self.urls.insert_one({"url_hash": hash_url, "url": url})
 
     def delete_urls(self, urls):
-        hashes = map(lambda x:hash(x), urls)
-        result = self.urls.delete_many({"url_hash":{"$in":hashes}})
+        hashes = map(lambda x: hash(x), urls)
+        result = self.urls.delete_many({"url_hash": {"$in": hashes}})
         return result.deleted_count
 
     def set_url_state(self, url, state):
@@ -52,5 +52,3 @@ class WakeUpStorage():
 
     def get_urls_with_state(self, state):
         return map(lambda x: x.get("url", ), self.urls.find({"state": state}, projection={'url': True}))
-
-

@@ -61,8 +61,8 @@ class ConfigManager(object):
                 "\n".join(["%s: %s" % (k, v) for k, v in self.config_data.iteritems()]))
         )
 
-    def get(self, name):
-        result = self.config_data.get(name, )
+    def get(self, name, default_value=None):
+        result = self.config_data.get(name, default_value)
         if not result:
             log.info("Not %s in %s :(" % (name, self.config_file))
         return result
