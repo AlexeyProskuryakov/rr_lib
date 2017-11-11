@@ -2,12 +2,14 @@ import logging
 
 from pymongo import MongoClient
 
-from rr_lib.cm import ConfigManager
+from rr_lib.cm import ConfigManager, Singleton
 
 log = logging.getLogger("DB")
 
 
 class DBHandler(object):
+    __metaclass__ = Singleton
+
     def __init__(self, name="main", uri=None, db_name=None, connection_name=''):
         cm = ConfigManager()
         if not cm.get(name):
