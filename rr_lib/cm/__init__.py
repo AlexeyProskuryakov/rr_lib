@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sys
+from logging import StreamHandler
 
 log = logging.getLogger("cm")
 
@@ -17,7 +18,7 @@ class Singleton(type):
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
-        key = (cls, hash("%s%s" % (args, kwargs)))
+        key = hash("%s%s%s" % (args, kwargs, hash(cls)))
         saved = cls._instances.get(key)
         if not saved:
             cls._instances[key] = super(Singleton, cls).__call__(*args, **kwargs)
@@ -69,6 +70,8 @@ class ConfigManager(object):
 
 
 if __name__ == '__main__':
+    log = logging.getLogger('cm')
+    log.addHandler(StreamHandler())
     cm = ConfigManager()
     print cm.get('main')
     assert ConfigManager(group=1) != ConfigManager()
