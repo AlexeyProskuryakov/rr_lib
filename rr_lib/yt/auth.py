@@ -119,7 +119,7 @@ def authorise(channel_id, app_id, app_type):
             'token_uri': app_creds['token_uri'],
             'login_hint': "LOGIN HINT",
         }
-    )
+    )   
 
     args = argparser.parse_args()
     storage = ChannelCredentialStorage(channel_id)
@@ -129,7 +129,7 @@ def authorise(channel_id, app_id, app_type):
 
 
 def authenticate(app_id, app_type, channel_id):
-    log.info('Start auth...')
+    log.info('Start auth: %s %s for channel: [%s]' % (app_id, app_type, channel_id))
     storage = ChannelCredentialStorage(channel_id)
     credentials = storage.get()
     if not credentials:
@@ -151,4 +151,4 @@ def authenticate(app_id, app_type, channel_id):
 
 default_app_config = ConfigManager().get('yt_default_app')
 default_app_id, default_app_type = default_app_config.get('project_id'), default_app_config.get('type')
-get_default_youtube_engine = partial(authenticate, default_app_id, default_app_type)
+get_default_youtube_auth_engine = partial(authenticate, default_app_id, default_app_type)
