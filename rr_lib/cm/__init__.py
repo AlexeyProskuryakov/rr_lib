@@ -70,8 +70,6 @@ class ConfigManager(object):
 
 
 if __name__ == '__main__':
-    log = logging.getLogger('cm')
-    log.addHandler(StreamHandler())
     cm = ConfigManager()
     print cm.get('main')
     assert ConfigManager(group=1) != ConfigManager()
