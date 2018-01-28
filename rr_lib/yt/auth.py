@@ -52,9 +52,9 @@ class _DatabaseConnector(DBHandler):
             if data and type in data:
                 return data[type]
 
-    def add_channel_credentials(self, channel_id, data):
+    def add_channel_credentials(self, channel_id, data, client_id=default_client):
         q = {'channel_id': channel_id}
-        self.channels.update_one(q, {'$set': dict(q, **{'data': data})}, upsert=True)
+        self.channels.update_one(q, {'$set': dict(q, **{'data': data, 'added_by': client_id})}, upsert=True)
 
     def get_channel_credentials(self, channel_id):
         found = self.channels.find_one({'channel_id': channel_id})

@@ -18,7 +18,7 @@ class DBHandler(object):
         _uri = uri or cm.get(name, ).get('mongo', ).get("uri", )
         _db_name = db_name or cm.get(name, ).get('mongo', ).get("db_name", )
 
-        self.client = MongoClient(host=_uri, maxPoolSize=10, connect=False)
+        self.client = MongoClient(host=_uri, maxPoolSize=200, connect=False, connectTimeoutMS=5000)
         self.db = self.client[_db_name]
         self.collection_names = self.db.collection_names(include_system_collections=False)
 
