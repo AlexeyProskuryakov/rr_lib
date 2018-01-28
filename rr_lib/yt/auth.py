@@ -22,6 +22,8 @@ YOUTUBE_API_VERSION = "v3"
 
 name = 'yt_auth'
 log = logging.getLogger(name)
+config = ConfigManager().get(name)
+default_client = config.get('client_id', 1)
 
 
 class _DatabaseConnector(DBHandler):
@@ -62,8 +64,8 @@ class _DatabaseConnector(DBHandler):
     def delete_channel_credentials(self, channel_id):
         return self.channels.delete_one({'channel_id': channel_id})
 
-    def set_current_channel(self, channel_id, client_id=1):
-        self.channels.update_one({'current': client_id}, {'$unset': {'current': 1}})
+    def set_current_channel(self, channel_id, client_id=default_client):
+        self.channels.update_one({'current': client_id}, {'$unset': {'current': channel_id}})
         q = {'channel_id': channel_id}
         result = self.channels.update_one(q, {'$set': dict({'current': client_id}, **q)}, upsert=True)
         return result
@@ -73,7 +75,7 @@ class _DatabaseConnector(DBHandler):
                                         {'$set': {'channel_id': channel_id, 'title': title}},
                                         upsert=True)
 
-    def get_current_channel_id(self, client_id=1):
+    def get_current_channel_id(self, client_id=default_client):
         found = self.channels.find_one({'current': client_id})
         if found:
             return found.get('channel_id')
@@ -119,7 +121,7 @@ def authorise(channel_id, app_id, app_type):
             'token_uri': app_creds['token_uri'],
             'login_hint': "LOGIN HINT",
         }
-    )   
+    )
 
     args = argparser.parse_args()
     storage = ChannelCredentialStorage(channel_id)
@@ -149,6 +151,6 @@ def authenticate(app_id, app_type, channel_id):
                  http=credentials.authorize(httplib2.Http()))
 
 
-default_app_config = ConfigManager().get('yt_default_app')
+default_app_config = config.get('default_app')
 default_app_id, default_app_type = default_app_config.get('project_id'), default_app_config.get('type')
 get_default_youtube_auth_engine = partial(authenticate, default_app_id, default_app_type)
