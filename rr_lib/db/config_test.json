@@ -1,0 +1,10 @@
+{
+  "main": {
+    "mongo": {
+      "uri": "mongodb://localhost:27017/exchange",
+      "db_name": "exchange",
+      "user": "exchanger",
+      "pwd": "exch_private_CHE_MONGO2K17"
+    }
+  }
+}

@@ -30,20 +30,22 @@ class ConfigException(Exception):
 class ConfigManager(object):
     __metaclass__ = Singleton
 
-    def __init__(self, config_f=None, group=0, **kwargs):
-        config_path = os.environ.get(EV_CONFIG_FILE_PATH, )
-        if not config_path:
-            raise ConfigException('%s is undefined :('%EV_CONFIG_FILE_PATH)
+    def __init__(self, config_fn=None, group=0, **kwargs):
+        if not config_fn:
+            config_path = os.environ.get(EV_CONFIG_FILE_PATH, )
+            if not config_path:
+                raise ConfigException('%s is undefined :('%EV_CONFIG_FILE_PATH)
 
-        if is_test_mode():
-            config_file = os.path.join(config_path, 'config_test.json')
-        else:
-            if config_path.endswith('.json'):
-                config_file = config_path
+            if is_test_mode():
+                config_file = os.path.join(config_path, 'config_test.json')
             else:
-                config_file = os.path.join(config_path, 'config.json')
+                if config_path.endswith('.json'):
+                    config_file = config_path
+                else:
+                    config_file = os.path.join(config_path, 'config.json')
+        else:
+            config_file = config_fn
 
-        config_file = config_f or config_file
         try:
             f = open(config_file, )
             raw_data = '\n'.join(f.readlines())
@@ -75,5 +77,5 @@ if __name__ == '__main__':
     assert ConfigManager(group=1) != ConfigManager()
     assert ConfigManager(group=1) == ConfigManager(group=1)
 
-    cm = ConfigManager(config_f='/home/alesha/Dropbox/rr/config_generators.json', group=2)
+    cm = ConfigManager(config_fn='/home/alesha/Dropbox/rr/config_generators.json', group=2)
     print cm.get('sniffer', )
