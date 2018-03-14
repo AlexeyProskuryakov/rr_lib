@@ -76,7 +76,7 @@ class ProcessDirector(object):
             self.redis.flushdb()
         log.info("Process director [%s] inited." % name)
 
-    @windows_skip(None)
+    @windows_skip(True)
     def start_aspect(self, aspect, tick_time=DEFAULT_TICK_TIME, with_tracking=True):
         alloc = self.redis.set(PREFIX_ALLOC(aspect), tick_time, ex=tick_time, nx=True)
         if alloc:
@@ -85,7 +85,7 @@ class ProcessDirector(object):
                 return result
             return alloc
 
-    @windows_skip(False)
+    @windows_skip(True)
     def stop_aspect(self, aspect):
         data = self.redis.get(PREFIX_ALLOC(aspect))
         if data:
@@ -104,3 +104,11 @@ class ProcessDirector(object):
 
     def _set_timed_state(self, aspect, ex):
         self.redis.set(PREFIX_ALLOC(aspect), ex, ex=ex)
+
+    def get_all_aspects(self):
+        keys = self.redis.keys(PREFIX_ALLOC(''))
+        result = {}
+        for key in keys:
+            k_res = self.redis.get(key)
+            result[key] = k_res
+        return result
