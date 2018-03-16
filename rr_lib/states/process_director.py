@@ -18,6 +18,8 @@ __all__ = [
     'ProcessDirector'
 ]
 
+stop = 'stop'
+
 
 class _ProcessTracker(object):
     def __init__(self, aspect, pd, tick_time):
@@ -39,6 +41,12 @@ def _send_heart_beat(aspect, pd, tick_time, stop_event):
 
     while not stop_event.isSet():
         try:
+            state = pd._get_timed_state(aspect)
+            if state is stop:
+                stop_event.set()
+                log.info('stop stracking %s' % aspect)
+                return
+
             pd._set_timed_state(aspect, tick_time)
         except Exception as e:
             log.exception(e)
@@ -89,13 +97,16 @@ class ProcessDirector(object):
     def stop_aspect(self, aspect):
         data = self.redis.get(PREFIX_ALLOC(aspect))
         if data:
-            self.redis.delete(PREFIX_ALLOC(aspect))
+            self.redis.set(PREFIX_ALLOC(aspect), stop)
             return True
         return False
 
     @windows_skip(True)
     def is_aspect_work(self, aspect, timing_check=True):
         tick_time = self.redis.get(PREFIX_ALLOC(aspect))
+        if tick_time is stop:
+            return False
+
         if tick_time and timing_check:
             time.sleep(int(tick_time))
             tick_time = self.redis.get(PREFIX_ALLOC(aspect))
@@ -104,6 +115,9 @@ class ProcessDirector(object):
 
     def _set_timed_state(self, aspect, ex):
         self.redis.set(PREFIX_ALLOC(aspect), ex, ex=ex)
+
+    def _get_timed_state(self, aspect):
+        return self.redis.get(PREFIX_ALLOC(aspect))
 
     def get_all_aspects(self):
         keys = self.redis.keys(PREFIX_ALLOC(''))
