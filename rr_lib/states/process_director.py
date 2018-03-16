@@ -55,19 +55,6 @@ def _send_heart_beat(aspect, pd, tick_time, stop_event):
     log.info("stop tracking [%s]" % aspect)
 
 
-def windows_skip(default_value):
-    def dec(f):
-        def wrapper(*args, **kwargs):
-            if os.name == 'nt':
-                return default_value
-            else:
-                return f(*args, **kwargs)
-
-        return wrapper
-
-    return dec
-
-
 class ProcessDirector(object):
     def __init__(self, name="?", clear=False, max_connections=2):
         if os.name == 'nt':
@@ -84,7 +71,6 @@ class ProcessDirector(object):
             self.redis.flushdb()
         log.info("Process director [%s] inited." % name)
 
-    @windows_skip(True)
     def start_aspect(self, aspect, tick_time=DEFAULT_TICK_TIME, with_tracking=True):
         alloc = self.redis.set(PREFIX_ALLOC(aspect), tick_time, ex=tick_time, nx=True)
         if alloc:
@@ -93,7 +79,6 @@ class ProcessDirector(object):
                 return result
             return alloc
 
-    @windows_skip(True)
     def stop_aspect(self, aspect):
         data = self.redis.get(PREFIX_ALLOC(aspect))
         if data:
@@ -101,7 +86,6 @@ class ProcessDirector(object):
             return True
         return False
 
-    @windows_skip(True)
     def is_aspect_work(self, aspect, timing_check=True):
         tick_time = self.redis.get(PREFIX_ALLOC(aspect))
         if tick_time is stop:
