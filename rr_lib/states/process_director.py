@@ -57,9 +57,6 @@ def _send_heart_beat(aspect, pd, tick_time, stop_event):
 
 class ProcessDirector(object):
     def __init__(self, name="?", clear=False, max_connections=2):
-        if os.name == 'nt':
-            return
-
         cm = ConfigManager()
         self.redis = redis.StrictRedis(host=cm.get('pd', ).get('host', ),
                                        port=int(cm.get('pd', ).get('port', )),
