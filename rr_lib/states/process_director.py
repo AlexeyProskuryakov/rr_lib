@@ -50,13 +50,13 @@ def _send_heart_beat(aspect, pd, tick_time, stop_event):
             pd._set_timed_state(aspect, tick_time)
         except Exception as e:
             log.exception(e)
-        time.sleep(tick_time)
+        time.sleep(tick_time / 2)
 
     log.info("stop tracking [%s]" % aspect)
 
 
 class ProcessDirector(object):
-    def __init__(self, name="?", clear=False, max_connections=2):
+    def __init__(self, name="?", clear=False, max_connections=5000):
         cm = ConfigManager()
         self.redis = redis.StrictRedis(host=cm.get('pd', ).get('host', ),
                                        port=int(cm.get('pd', ).get('port', )),
@@ -75,6 +75,15 @@ class ProcessDirector(object):
                 result = _ProcessTracker(aspect, self, tick_time)
                 return result
             return alloc
+        else:
+            state = self.redis.get(PREFIX_ALLOC(aspect))
+            if state == stop:
+                self.redis.delete(PREFIX_ALLOC(aspect))
+                self.redis.set(PREFIX_ALLOC(aspect), tick_time, ex=tick_time, nx=True)
+                if with_tracking:
+                    result = _ProcessTracker(aspect, self, tick_time)
+                    return result
+                return True
 
     def stop_aspect(self, aspect):
         data = self.redis.get(PREFIX_ALLOC(aspect))
@@ -85,8 +94,12 @@ class ProcessDirector(object):
 
     def is_aspect_work(self, aspect, timing_check=True):
         tick_time = self.redis.get(PREFIX_ALLOC(aspect))
-        if tick_time is stop:
+        if tick_time == stop:
+            log.info('Stop by signal.')
             return False
+
+        if not tick_time:
+            log.info('Stop by time to update is expired')
 
         if tick_time and timing_check:
             time.sleep(int(tick_time))
