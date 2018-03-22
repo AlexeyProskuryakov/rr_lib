@@ -42,7 +42,7 @@ def _send_heart_beat(aspect, pd, tick_time, stop_event):
     while not stop_event.isSet():
         try:
             state = pd._get_timed_state(aspect)
-            if state is stop:
+            if state == stop:
                 stop_event.set()
                 log.info('stop stracking %s' % aspect)
                 return
