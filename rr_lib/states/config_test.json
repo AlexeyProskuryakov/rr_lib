@@ -2,6 +2,6 @@
   "pd": {
     "url": "localhost",
     "port": 6379,
-    "pwd": "test"
+    "pwd": "private_CHE_REDIS@)"
   }
 }

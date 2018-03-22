@@ -2,7 +2,7 @@ from multiprocessing import Process
 
 import time
 
-from rr_lib.states.process_director import ProcessDirector
+from rr_lib.states.process_director import ProcessDirector, aspect_startable, get_pd, aspect_checkable
 
 
 class TestProcess(Process):
@@ -41,17 +41,32 @@ def test_posix():
 def test_nt():
     pd = ProcessDirector('t')
     assert pd.is_aspect_work('t') == True
-    assert pd.start_aspect() == None
+    assert pd.start_aspect('t') == None
+
+
+def test_sugar():
+    aspect = 'test'
+    pd = get_pd()
+    pd.stop_aspect(aspect)
+
+    @aspect_checkable(aspect)
+    def iterate(what):
+        print what
+        return True
+
+    @aspect_startable(aspect, 3600)
+    def work():
+        next = True
+        i = 0
+        while next:
+            i += 1
+            next = iterate(i)
+            if i > 100:
+                pd.stop_aspect(aspect)
+
+    work()
+
 
 
 if __name__ == '__main__':
-    import logging
-    from logging import StreamHandler
-
-    import os
-    logging.getLogger().addHandler(StreamHandler())
-
-    if os.name == 'nt':
-        test_nt()
-    else:
-        test_posix()
+    test_sugar()

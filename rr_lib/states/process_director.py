@@ -68,7 +68,7 @@ class ProcessDirector(object):
             self.redis.flushdb()
         log.info("Process director [%s] inited." % name)
 
-    def start_aspect(self, aspect, tick_time=DEFAULT_TICK_TIME, with_tracking=True):
+    def start_aspect(self, aspect, tick_time=DEFAULT_TICK_TIME, with_tracking=True, force=False):
         alloc = self.redis.set(PREFIX_ALLOC(aspect), tick_time, ex=tick_time, nx=True)
         if alloc:
             if with_tracking:
@@ -84,13 +84,18 @@ class ProcessDirector(object):
                     result = _ProcessTracker(aspect, self, tick_time)
                     return result
                 return True
+        if force:
+            self.redis.delete(PREFIX_ALLOC(aspect))
+            self.redis.set(PREFIX_ALLOC(aspect), tick_time, ex=tick_time, nx=True)
+            return True
 
     def stop_aspect(self, aspect):
+        result = False
         data = self.redis.get(PREFIX_ALLOC(aspect))
         if data:
-            self.redis.set(PREFIX_ALLOC(aspect), stop)
-            return True
-        return False
+            result = True
+        set_result = self.redis.set(PREFIX_ALLOC(aspect), stop)
+        return result or set_result
 
     def is_aspect_work(self, aspect, timing_check=True):
         tick_time = self.redis.get(PREFIX_ALLOC(aspect))
@@ -120,3 +125,39 @@ class ProcessDirector(object):
             k_res = self.redis.get(key)
             result[key] = k_res
         return result
+
+
+_pd = ProcessDirector('_main')
+
+
+def aspect_startable(aspect, sleep_time=2, with_tracking=True, force=False):
+    def function(f):
+        def wrapper(*args, **kwargs):
+            start = _pd.start_aspect(aspect, sleep_time, with_tracking=with_tracking, force=force)
+            if not start:
+                log.info('Another [%s] work now/' % aspect)
+                return
+
+            return f(*args, **kwargs)
+
+        return wrapper
+
+    return function
+
+
+def aspect_checkable(aspect):
+    def function(f):
+        def wrapper(*args, **kwargs):
+            is_work = _pd.is_aspect_work(aspect, timing_check=False)
+            if is_work == False:
+                log.info('Aspect [%s] stop/' % aspect)
+                return False
+            return f(*args, **kwargs)
+
+        return wrapper
+
+    return function
+
+
+def get_pd():
+    return _pd
