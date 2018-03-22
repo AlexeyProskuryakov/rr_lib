@@ -1,8 +1,12 @@
+import logging
+from logging import StreamHandler
 from multiprocessing import Process
 
 import time
 
-from rr_lib.states.process_director import ProcessDirector, aspect_startable, get_pd, aspect_checkable
+from rr_lib.states.process_director import ProcessDirector, AspectDirector
+
+log = logging.getLogger()
 
 
 class TestProcess(Process):
@@ -46,27 +50,29 @@ def test_nt():
 
 def test_sugar():
     aspect = 'test'
-    pd = get_pd()
-    pd.stop_aspect(aspect)
+    ad = AspectDirector(aspect)
+    ad.stop()
 
-    @aspect_checkable(aspect)
+    @ad.aspect_checkable()
     def iterate(what):
         print what
         return True
 
-    @aspect_startable(aspect, 3600)
+    @ad.aspect_startable(sleep_time=2)
     def work():
         next = True
         i = 0
         while next:
             i += 1
-            next = iterate(i)
+            next, _ = iterate(i)
             if i > 100:
-                pd.stop_aspect(aspect)
+                ad.stop()
 
     work()
 
 
+log.setLevel('DEBUG')
+log.addHandler(StreamHandler())
 
 if __name__ == '__main__':
     test_sugar()

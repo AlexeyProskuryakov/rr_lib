@@ -24,6 +24,7 @@ stop = 'stop'
 class _ProcessTracker(object):
     def __init__(self, aspect, pd, tick_time):
         event = Event()
+        self.tick_time = tick_time
         self.tsh = Thread(target=_send_heart_beat, args=(aspect, pd, tick_time, event))
         self.tsh.setDaemon(True)
         self.tsh.start()
@@ -33,11 +34,14 @@ class _ProcessTracker(object):
     def stop_track(self):
         log.info("will stop tracking")
         self.stop_event.set()
-        self.tsh.join()
+        try:
+            self.tsh.join(timeout=self.tick_time)
+        except Exception as e:
+            log.exception(e)
 
 
 def _send_heart_beat(aspect, pd, tick_time, stop_event):
-    log.info("start tracking [%s] every [%s]" % (aspect, tick_time))
+    log.info("shb start tracking [%s] every [%s]" % (aspect, tick_time / 2))
 
     while not stop_event.isSet():
         try:
@@ -50,9 +54,10 @@ def _send_heart_beat(aspect, pd, tick_time, stop_event):
             pd._set_timed_state(aspect, tick_time)
         except Exception as e:
             log.exception(e)
+
         time.sleep(tick_time / 2)
 
-    log.info("stop tracking [%s]" % aspect)
+    log.info("shb stop tracking [%s]" % aspect)
 
 
 class ProcessDirector(object):
@@ -127,37 +132,41 @@ class ProcessDirector(object):
         return result
 
 
-_pd = ProcessDirector('_main')
+class AspectDirector():
+    _pd = ProcessDirector('_main')
 
+    def __init__(self, aspect):
+        self.aspect = aspect
+        self.start = None
 
-def aspect_startable(aspect, sleep_time=2, with_tracking=True, force=False):
-    def function(f):
-        def wrapper(*args, **kwargs):
-            start = _pd.start_aspect(aspect, sleep_time, with_tracking=with_tracking, force=force)
-            if not start:
-                log.info('Another [%s] work now/' % aspect)
-                return
+    def stop(self):
+        return self._pd.stop_aspect(self.aspect)
 
-            return f(*args, **kwargs)
+    def aspect_startable(self, sleep_time=2, with_tracking=True, force=False):
+        def function(f):
+            def wrapper(*args, **kwargs):
+                start = self._pd.start_aspect(self.aspect, sleep_time, with_tracking=with_tracking, force=force)
+                if not start:
+                    log.info('Another [%s] work now/' % self.aspect)
+                    return
 
-        return wrapper
+                self.start = start
+                return f(*args, **kwargs)
 
-    return function
+            return wrapper
 
+        return function
 
-def aspect_checkable(aspect):
-    def function(f):
-        def wrapper(*args, **kwargs):
-            is_work = _pd.is_aspect_work(aspect, timing_check=False)
-            if is_work == False:
-                log.info('Aspect [%s] stop/' % aspect)
-                return False
-            return f(*args, **kwargs)
+    def aspect_checkable(self):
+        def function(f):
+            def wrapper(*args, **kwargs):
+                is_work = self._pd.is_aspect_work(self.aspect, timing_check=False)
+                if is_work == False:
+                    log.info('Aspect [%s] stop/' % self.aspect)
+                    self.start.stop_track()
+                    return False, None
+                return True, f(*args, **kwargs)
 
-        return wrapper
+            return wrapper
 
-    return function
-
-
-def get_pd():
-    return _pd
+        return function
