@@ -19,27 +19,27 @@ class TestProcess(Process):
     def run(self):
         tracker = self.pd.start_aspect(self.aspect, tick_time=1)
         for i in range(5):
-            print i
+            print(i)
             time.sleep(1)
-        print "stop"
+        print("stop")
         tracker.stop_track()
-        print "stopped"
+        print("stopped")
 
 
 def test_posix():
     sp = TestProcess("test")
 
     pd = ProcessDirector("t")
-    print "before start", pd.is_aspect_work("test")
+    print("before start", pd.is_aspect_work("test"))
     sp.start()
-    print "after start", pd.is_aspect_work("test")
+    print("after start", pd.is_aspect_work("test"))
 
     time.sleep(5)
     sp.join()
 
-    print "after join", pd.is_aspect_work("test")
+    print("after join", pd.is_aspect_work("test"))
     time.sleep(4)
-    print "after wait", pd.is_aspect_work("test")
+    print("after wait", pd.is_aspect_work("test"))
 
 
 def test_nt():
@@ -55,7 +55,7 @@ def test_sugar():
 
     @ad.aspect_checkable()
     def iterate(what):
-        print what
+        print(what)
         return True
 
     @ad.aspect_startable(sleep_time=2)
@@ -69,6 +69,10 @@ def test_sugar():
                 ad.stop()
 
     work()
+
+
+class AspectTest(object):
+    ad = AspectDirector('')
 
 
 log.setLevel('DEBUG')

@@ -73,9 +73,9 @@ class ConfigManager(object):
 
 if __name__ == '__main__':
     cm = ConfigManager()
-    print cm.get('main')
+    print(cm.get('main'))
     assert ConfigManager(group=1) != ConfigManager()
     assert ConfigManager(group=1) == ConfigManager(group=1)
 
     cm = ConfigManager(config_fn='/home/alesha/Dropbox/rr/config_generators.json', group=2)
-    print cm.get('sniffer', )
+    print(cm.get('sniffer', ))
