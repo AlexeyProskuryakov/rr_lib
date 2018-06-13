@@ -61,7 +61,7 @@ class ConfigManager(object):
             "LOAD CONFIG DATA FROM %s FOR GROUP %s:\n%s" % (
                 config_file,
                 group,
-                "\n".join(["%s: %s" % (k, v) for k, v in self.config_data.iteritems()]))
+                "\n".join(["%s: %s" % (k, v) for k, v in self.config_data.items()]))
         )
 
     def get(self, name, default_value=None):
