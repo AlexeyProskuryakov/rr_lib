@@ -5,7 +5,7 @@ from rr_lib.users.store import UsersStore
 
 class User(object):
     def __init__(self, name, pwd):
-        self.id = str(uuid4().get_hex())
+        self.id = str(uuid4())
         self.auth = False
         self.active = False
         self.anonymous = False
